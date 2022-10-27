@@ -7,7 +7,7 @@ use App\Services\Inquiry\InquiryService;
 
 class InquiryUseCase
 {
-    public function InquiryUseCase($kodeBank, $passwordBank, $kodeChannel, $kodeTerminal, $nomorPembayaran, $tanggalTransaksi, $idTransaksi){
+    public function InquiryUseCase($nomorPembayaran){
         $kodeBayar = substr($nomorPembayaran,0,1);
         $nimRegnum = substr($nomorPembayaran,1);
 

@@ -33,14 +33,14 @@ class RestController extends Controller
         $res = new DTOTagihanResponse();
 
         // TODO Authentication Bank
-        $bankServ = new BankUseCase();
-        $auth = $bankServ->AuthenticationBank($kodeBank, $passwordBank);
+        $bankUseCase = new BankUseCase();
+        $auth = $bankUseCase->AuthenticationBank($kodeBank, $passwordBank);
     
         if($auth){
 
             // TODO Process Inquiry
             $useCase = new InquiryUseCase();
-            $resUseCase = $useCase->InquiryUseCase($kodeBank, $passwordBank, $kodeChannel, $kodeTerminal, $nomorPembayaran, $tanggalTransaksi, $idTransaksi);
+            $resUseCase = $useCase->InquiryUseCase($nomorPembayaran);
 
             $res->idTagihan = $resUseCase->idTagihan;
             $res->nama = $resUseCase->nama;
@@ -94,8 +94,8 @@ class RestController extends Controller
         $res->totalNominal = $totalNominal;
 
         // TODO Authentication Bank
-        $bankServ = new BankUseCase();
-        $auth = $bankServ->AuthenticationBank($kodeBank, $passwordBank);
+        $bankUseCase = new BankUseCase();
+        $auth = $bankUseCase->AuthenticationBank($kodeBank, $passwordBank);
     
         if($auth){
 
