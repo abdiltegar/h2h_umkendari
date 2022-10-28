@@ -101,7 +101,7 @@ class RestController extends Controller
 
             // TODO Process Payment
             $useCase = new PaymentUseCase();
-            $resUseCase = $useCase->PaymentUseCase($kodeBank, $passwordBank, $kodeChannel, $kodeTerminal, $nomorPembayaran, $tanggalTransaksi, $idTransaksi);
+            $resUseCase = $useCase->PaymentUseCase($kodeBank, $nomorPembayaran, $tanggalTransaksi, $totalNominal);
 
             $res->code;
             $res->message;

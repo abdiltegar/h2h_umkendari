@@ -2,7 +2,7 @@
 
 namespace App\UseCases\Bank;
 
-use App\Services\Auth\BankService;
+use App\Services\Bank\BankService;
 
 class BankUseCase
 {

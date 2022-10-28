@@ -10,7 +10,7 @@ class InquiryService
 {
     /*
     $identitas string = Bisa berupa nim / register number
-    $kodeBayar = [1 = Penmaru, 2 = Her Registrasi, 3 = SPP]
+    $kodeBayar = [1 = Penmaru, 2 = Her Registrasi, 3 = SPP Tetap, 4 = KRS / SPP Variable]
     */    
     public function InquiryService($identitas, $kodeBayar){
         $res = new DTOTagihanResponse();

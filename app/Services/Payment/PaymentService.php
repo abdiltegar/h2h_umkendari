@@ -8,4 +8,5 @@ use App\Models\DTOPaymentResponse;
 
 class PaymentService
 {
+    public function InsertPayment($idTagihan)
 }
