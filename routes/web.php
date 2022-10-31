@@ -22,4 +22,5 @@ Route::controller(RestController::class)->group(function () {
     Route::get('test', 'index')->name('test');
 
     Route::get('/inquiry', 'Inquiry')->name('inquiry');
+    Route::get('/payment', 'Payment')->name('payment');
 });

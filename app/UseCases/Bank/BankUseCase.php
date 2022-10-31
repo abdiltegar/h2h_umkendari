@@ -9,7 +9,7 @@ class BankUseCase
     public function AuthenticationBank($kodeBank, $passwordBank){
 
         $serv = new BankService();
-        $Bank = $serv->AuthenticationBank($kodeBank, $passwordBank);
+        $Bank = $serv->AuthenticationBank($kodeBank, \md5($passwordBank));
 
         return $Bank;
     }

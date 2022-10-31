@@ -8,6 +8,7 @@ use App\UseCases\Bank\BankUseCase;
 use App\UseCases\Log\LogUseCase;
 use App\Models\DTOTagihanResponse;
 use App\Models\DTOPaymentResponse;
+use App\Models\ResponseCode;
 
 class Test {
     public $nama;
@@ -30,7 +31,9 @@ class RestController extends Controller
         $idTransaksi = $request->idTransaksi;
 
         // TODO Prepare response
-        $res = new DTOTagihanResponse();
+        // $res = new DTOTagihanResponse();
+        $res = new \stdClass();
+        $resCode = new ResponseCode();
 
         // TODO Authentication Bank
         $bankUseCase = new BankUseCase();
@@ -53,21 +56,12 @@ class RestController extends Controller
             $res->deskripsi = $resUseCase->deskripsi;
 
         } else {
-
-            $res->idTagihan = "";
-            $res->nama = "";
-            $res->fakultas = "";
-            $res->jurusan = "";
-            $res->angkatan = "";
-            $res->code = "5";
+            $res->code = $resCode->ERR_BANK_UNKNOWN;
             $res->message = "Identitas collecting agent tidak dikenal.";
-            $res->totalNominal = "";
-            $res->deskripsi = "";
-
         }
 
         $log = new LogUseCase();
-        $log->LogInquiry($res->idTagihan, $kodeBank, $kodeChannel, $kodeTerminal, $nomorPembayaran, $tanggalTransaksi, $idTransaksi, $res->code, $res->message);
+        $log->LogInquiry((isset($res->idTagihan) ? $res->idTagihan : ""), $kodeBank, $kodeChannel, $kodeTerminal, $nomorPembayaran, $tanggalTransaksi, $idTransaksi, $resCode->mappingRCToDB($res->code), $res->message);
         return response()->json($res);
     }
 
@@ -85,9 +79,12 @@ class RestController extends Controller
         $nomorJurnalBank = $request->nomorJurnalBank;
         $passwordAdmin = $request->passwordAdmin;
         $emailAdmin = $request->emailAdmin;
-        $PetugasLogin = $request->petugasLogin;
+        $petugasLogin = $request->petugasLogin;
+        $catatan = $request->catatan;
 
         // TODO Prepare response
+        $resCode = new ResponseCode();
+
         $res = new DTOPaymentResponse();
         $res->idTagihan = $idTagihan;
         $res->nomorPembayaran = $nomorPembayaran;
@@ -101,18 +98,17 @@ class RestController extends Controller
 
             // TODO Process Payment
             $useCase = new PaymentUseCase();
-            $resUseCase = $useCase->PaymentUseCase($kodeBank, $nomorPembayaran, $tanggalTransaksi, $totalNominal);
+            $resUseCase = $useCase->PaymentUseCase($idTagihan, $nomorPembayaran, $kodeUnikBank, $nomorJurnalBank, $tanggalTransaksi, $kodeBank, $kodeChannel, $kodeTerminal, $totalNominal, $petugasLogin, $catatan);
 
-            $res->code;
-            $res->message;
+            $res = $resUseCase;
 
         } else {
-            $res->code = "5";
+            $res->code = $resCode->ERR_BANK_UNKNOWN;
             $res->message = "Identitas collecting agent tidak dikenal.";
         }
 
         $log = new LogUseCase();
-        $log->LogPayment($res->idTagihan, $kodeBank, $kodeChannel, $kodeTerminal, $nomorPembayaran, $tanggalTransaksi, $idTransaksi, $res->code, $res->message);
+        $log->LogPayment($idTagihan, $kodeBank, $kodeChannel, $kodeTerminal, $nomorPembayaran, $tanggalTransaksi, $idTransaksi, $resCode->mappingRCToDB($res->code), $res->message);
         return response()->json($res);
     }
 

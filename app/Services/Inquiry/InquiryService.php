@@ -5,6 +5,7 @@ namespace App\Services\Inquiry;
 use DB;
 use App\Services\Student\StudentService;
 use App\Models\DTOTagihanResponse;
+use App\Models\ResponseCode;
 
 class InquiryService
 {
@@ -14,6 +15,7 @@ class InquiryService
     */    
     public function InquiryService($identitas, $kodeBayar){
         $res = new DTOTagihanResponse();
+        $resCode = new ResponseCode();
 
         $SpResult = DB::connection('SIA')->select("call usp_h2h_inquiry('".$identitas."', '".$kodeBayar."')");
 
@@ -34,9 +36,9 @@ class InquiryService
                 $res->fakultas = "";
                 $res->jurusan = "";
                 $res->angkatan = "";
-                $res->code = "14";
+                $res->code = $resCode->ERR_NOT_FOUND;
                 $res->message = "Nomor Pembayaran Salah";
-                $res->totalNominal = "";
+                $res->totalNominal = 0;
                 $res->deskripsi = "";
             }else{
                 $res->idTagihan = "";
@@ -44,9 +46,9 @@ class InquiryService
                 $res->fakultas = $student->fakultas;
                 $res->jurusan = $student->jurusan;
                 $res->angkatan = $student->angkatan;
-                $res->code = "16";
-                $res->message = "Tidak ada tagihan untuk saat ini";
-                $res->totalNominal = "";
+                $res->code = $resCode->ERR_ALREADY_PAID;
+                $res->message = "Tidak ada tagihan untuk saat ini / Tagihan telah dibayar";
+                $res->totalNominal = 0;
                 $res->deskripsi = "";
             }
 
@@ -57,14 +59,14 @@ class InquiryService
                 }else{
                     $res->idTagihan = "";
                 }
-                $res->nama = $value->nama;
-                $res->fakultas = $value->fakultas;
-                $res->jurusan = $value->jurusan;
-                $res->angkatan = $value->angkatan;
-                $res->code = $value->rc;
-                $res->message = $value->message;
+                $res->nama = "".$value->nama."";
+                $res->fakultas = "".$value->fakultas."";
+                $res->jurusan = "".$value->jurusan."";
+                $res->angkatan = "".$value->angkatan."";
+                $res->code = "".$resCode->OK."";
+                $res->message = "".$value->message."";
                 $res->totalNominal = $value->totalNominal;
-                $res->deskripsi = $value->deskripsi;
+                $res->deskripsi = "".$value->deskripsi."";
             }
         }
 
