@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Inquiry;
+namespace App\Services\Payment;
 
 use DB;
 use App\Services\Tagihan\TagihanService;
@@ -12,6 +12,7 @@ class PaymentService
     public function InsertReffPayment($idTagihan, $kodeUnikBank, $nomorJurnalBank, $tanggalTransaksi, $kodeBank, $kodeChannel, $kodeTerminal, $totalNominal, $kodeBayar){
         $res = new \stdClass();
         $resCode = new ResponseCode();
+        $tghnServ = new TagihanService();
 
         $tagihan = $tghnServ->GetTagihanById($idTagihan);
 
@@ -19,16 +20,27 @@ class PaymentService
         // CALL sp_online_insert_payment to insert into ca_payment from ca_tagihan
         $spInsert = DB::connection('H2H')->select("CALL sp_online_insert_payment(?,?,?,?,?,?,?,?,?,?,?)",[$idTagihan,$tagihan->nomorPembayaran,$kodeUnikBank,$nomorJurnalBank,$tanggalTransaksi,$kodeBank,$kodeChannel,$kodeTerminal,$totalNominal,$status_bayar,'']);
 
-        if (!$insert[0]->cek = 1) {
+        if (!$spInsert[0]->cek = 1) {
             $res->code = $resCode->ERR_UNDEFINED;
             $res->message = "Gagal input transaksi pembayaran ke reff payment";
             return $res;
         }
 
+        $year = substr($tanggalTransaksi,0,4);
+        $month = substr($tanggalTransaksi,4,2);
+        $day = substr($tanggalTransaksi,6,2);
+        $hour = substr($tanggalTransaksi,8,2);
+        $minute = substr($tanggalTransaksi,10,2);
+        $second = substr($tanggalTransaksi,12,2);
+
         // TODO insert to fnc_reff_payment (table fnc_reff_payment parent dari fnc_student_payment)
+
         $Reff_Payment_Code = $idTagihan;
         $Register_Number = $tagihan->registerNumber;
-        $Payment_Date = Date("Y-m-d H:i:s",strtotime($tanggalTransaksi));
+        $Payment_Date = Date("Y-m-d H:i:s");
+        if($tanggalTransaksi != null && $tanggalTransaksi != ""){
+            $Payment_Date = Date("Y-m-d H:i:s",strtotime($year."-".$month."-".$day." ".$hour.":".$minute.":".$second));
+        }
         $Bank_Id = $kodeBank;
         $Description = 'online';
         $Term_Year_Id = $tagihan->periode;
@@ -75,20 +87,21 @@ class PaymentService
     public function InsertStudentPayment($idTagihan, $reffId, $kodeBank, $catatan, $petugasLogin, $kodeBayar){
         $res = new DTOPaymentResponse();
         $tghnServ = new TagihanService();
+        $resCode = new ResponseCode();
 
         $tagihan = $tghnServ->GetTagihanById($idTagihan);
         $tagihanDetails = $tghnServ->GetTagihanDetilById($idTagihan);
         $i = 1;
         foreach($tagihanDetails as $tagihanDetail) {
-            $Reff_Payment_Id = $last_id;
+            $Reff_Payment_Id = $reffId;
             $Trans_Order = $i;
             $Register_Number = $tagihan->registerNumber;
             $Term_Year_Id = $tagihan->periode;
-            $Cost_Item_Id = $item->Cost_Item_Id;
-            $Payment_Amount = $item->Nominal;
+            $Cost_Item_Id = $tagihanDetail->Cost_Item_Id;
+            $Payment_Amount = $tagihanDetail->Nominal;
             $Payment_Status = '1';
             $Bank_Id = $kodeBank;
-            $Term_Year_Bill_Id = $item->Term_Year_Bill_Id;
+            $Term_Year_Bill_Id = $tagihanDetail->Term_Year_Bill_Id;
             $Created_By = 'online';
             $Created_Date = Date('Y-m-d H:i:s');
             $Description= null;
@@ -99,8 +112,8 @@ class PaymentService
                 $Created_By = $petugasLogin;
             }
 
-            if ($item->Payment_Order != null){
-                $Installment_Order = $item->Payment_Order;
+            if ($tagihanDetail->Payment_Order != null){
+                $Installment_Order = $tagihanDetail->Payment_Order;
                 //jika pembayaran her registrasi
                 if ($kodeBayar == 2) {
                     //insert juga Is_Her
@@ -193,5 +206,13 @@ class PaymentService
         $res->code = $resCode->OK;
         $res->message = "Transaksi berhasil";
         return $res;
+    }
+
+    public function CheckPaymentStatus($idTagihan, $nomorPembayaran, $kodeBank, $totalNominal){
+        $cekPembayaran2 = DB::connection('H2H')->select("CALL sp_online_cek_payment(?,?,?,?)",[$idTagihan,$nomorPembayaran,$kodeBank,$totalNominal]);
+        if ($cekPembayaran2[0]->v_count > 0) {
+            return true; // sudah dibayar
+        }
+        return false; // belum dibayar
     }
 }

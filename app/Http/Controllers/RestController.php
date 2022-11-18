@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\UseCases\Inquiry\InquiryUseCase;
-use App\UseCases\Inquiry\PaymentUseCase;
+use App\UseCases\Payment\PaymentUseCase;
 use App\UseCases\Bank\BankUseCase;
 use App\UseCases\Log\LogUseCase;
 use App\Models\DTOTagihanResponse;

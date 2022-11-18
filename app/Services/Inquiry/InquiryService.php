@@ -16,19 +16,18 @@ class InquiryService
     public function InquiryService($identitas, $kodeBayar){
         $res = new DTOTagihanResponse();
         $resCode = new ResponseCode();
+        $stdServ = new StudentService();
+        $student = $stdServ->GetCamaruByRegNum($identitas);
+        if($student->nama == null){
+            $student = $stdServ->GetStudentByNim($identitas);
+            if($student->nama == null){
+                $student = $stdServ->GetStudentByRegNum($identitas);
+            }
+        }
 
         $SpResult = DB::connection('SIA')->select("call usp_h2h_inquiry('".$identitas."', '".$kodeBayar."')");
 
         if (count($SpResult) == 0) {
-            $stdServ = new StudentService();
-
-            $student = $stdServ->GetCamaruByRegNum($identitas);
-            if($student->nama == null){
-                $student = $stdServ->GetStudentByNim($identitas);
-                if($student->nama == null){
-                    $student = $stdServ->GetStudentByRegNum($identitas);
-                }
-            }
 
             if($student->nama == null){
                 $res->idTagihan = "";
@@ -50,23 +49,35 @@ class InquiryService
                 $res->message = "Tidak ada tagihan untuk saat ini / Tagihan telah dibayar";
                 $res->totalNominal = 0;
                 $res->deskripsi = "";
+                $res->nomorPembayaran = $kodeBayar."".$identitas;
+                $res->idPelanggan = $identitas;
+                $res->email = $student->email;
             }
 
         }else{
             foreach ($SpResult as $key => $value) {
-                if(isset($value->idTagihan)){
-                    $res->idTagihan = $value->idTagihan;
+                $res->code = $resCode->mappingDBToRC("".$value->rc."");
+
+                if($res->code != $resCode->OK){
+                    $res->message = "".$value->message."";
                 }else{
-                    $res->idTagihan = "";
+                    if(isset($value->idTagihan)){
+                        $res->idTagihan = $value->idTagihan;
+                    }else{
+                        $res->idTagihan = "";
+                    }
+                    $res->nama = "".$value->nama."";
+                    $res->fakultas = "".$value->fakultas."";
+                    $res->jurusan = "".$value->jurusan."";
+                    $res->angkatan = "".$value->angkatan."";
+                    // $res->code = "".$resCode->OK."";
+                    $res->message = "".$value->message."";
+                    $res->totalNominal = $value->totalNominal;
+                    $res->deskripsi = "".$value->deskripsi."";
+                    $res->nomorPembayaran = $kodeBayar."".$identitas;
+                    $res->idPelanggan = $identitas;
+                    $res->email = $student->email;
                 }
-                $res->nama = "".$value->nama."";
-                $res->fakultas = "".$value->fakultas."";
-                $res->jurusan = "".$value->jurusan."";
-                $res->angkatan = "".$value->angkatan."";
-                $res->code = "".$resCode->OK."";
-                $res->message = "".$value->message."";
-                $res->totalNominal = $value->totalNominal;
-                $res->deskripsi = "".$value->deskripsi."";
             }
         }
 

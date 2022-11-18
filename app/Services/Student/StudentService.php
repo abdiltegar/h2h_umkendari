@@ -11,6 +11,7 @@ class StudentResponse {
     public $fakultas;
     public $jurusan;
     public $angkatan;
+    public $email;
 }
 
 class StudentService
@@ -32,6 +33,7 @@ class StudentService
             $res->fakultas = $data->Faculty_Name;
             $res->jurusan = $data->Department_Name;
             $res->angkatan = $data->Entry_Year_Id;
+            $res->email = $data->Email_General;
         }
 
         return $res;
@@ -54,6 +56,7 @@ class StudentService
             $res->fakultas = $data->Faculty_Name;
             $res->jurusan = $data->Department_Name;
             $res->angkatan = $data->Entry_Year_Id;
+            $res->email = $data->Email_General;
         }
 
         return $res;
@@ -71,6 +74,7 @@ class StudentService
             $res->fakultas = "";
             $res->jurusan = "";
             $res->angkatan = $data->Entry_Year_Id;
+            $res->email = $data->Email_General;
         }
 
         return $res;

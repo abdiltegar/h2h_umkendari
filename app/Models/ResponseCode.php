@@ -20,10 +20,16 @@ class ResponseCode
         switch($rc_db){
             case "16":
                 $res = $this->ERR_ALREADY_PAID;
+                break;
             case "3":
                 $res = $this->ERR_NOT_FOUND;
-            default:
+                break;
+            case "0":
                 $res = $this->OK;
+                break;
+            default:
+                $res = $this->ERR_UNDEFINED;
+                break;
         }
         return $res;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Inquiry;
+namespace App\Services\Tagihan;
 
 use DB;
 
@@ -13,4 +13,5 @@ class TagihanService
     public function GetTagihanDetilById($idTagihan){
         return DB::connection('H2H')->table('ca_tagihan_detil')->where('idTagihan',$idTagihan)->get();
     }
+
 }

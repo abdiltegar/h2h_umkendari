@@ -19,4 +19,10 @@ class BankService
 
         return $res;
     }
+
+    public function GetByKodeBank($kodeBank){
+        $bank = DB::connection('H2H')->table('ca_bank')->where('kodeBank', $kodeBank)->first();
+        return $bank;
+    }
+    
 }

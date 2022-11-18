@@ -13,4 +13,29 @@ class BankUseCase
 
         return $Bank;
     }
+
+    public function GetByKodeBank($kodeBank){
+        $serv = new BankService();
+        return $serv->GetByKodeBank($kodeBank);
+    }
+
+    public function CheckSumBsi($kodeBank, $secretKey, $nomorPembayaran, $tanggalTransaksi, $totalNominal, $checksum){
+        $serv = new BankService();
+        
+        $string = "".$nomorPembayaran."".$secretKey."".$tanggalTransaksi."".$totalNominal."";
+        if($checksum == \sha1($string)){
+            return true;
+        }
+        return false;
+    }
+
+    public function CheckSumBmi($kodeBank, $secretKey, $nomorPembayaran, $tanggalTransaksi, $totalNominal, $checksum){
+        $serv = new BankService();
+
+        $string = "".$nomorPembayaran."".$secretKey."".$tanggalTransaksi."".$totalNominal."";
+        if($checksum == \md5($string)){
+            return true;
+        }
+        return false;
+    }
 }
